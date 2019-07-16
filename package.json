@@ -1,0 +1,22 @@
+{
+  "name": "cmsc198",
+  "version": "1.0.0",
+  "description": "cmsc198 requirement",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index",
+    "dev": "nodemon index"
+  },
+  "author": "Jeran Salcedo",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^3.0.6",
+    "express": "^4.17.1",
+    "mysql": "^2.17.1",
+    "q": "^1.5.1",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  }
+}
