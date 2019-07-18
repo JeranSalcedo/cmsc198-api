@@ -1,6 +1,6 @@
 const express = require('express');
 const mysql = require('mysql');
-const path = require('path');
+// const path = require('path');
 
 const app = express();
 
@@ -9,7 +9,7 @@ const connection = mysql.createConnection({
 	host: 'localhost',
 	user: 'root',
 	password: '',
-	database: 'cmsc198',
+	database: 'cmsc198'
 });
 
 connection.connect(err => {
@@ -23,10 +23,15 @@ global.db = connection;
 
 // middlewares
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({
+	extended: false
+}));
 
 // routes
-app.use('/api/account', require('./routes/api/account'));
+app.use('/api/login', require('./routes/api/login'));
+app.use('/api/user', require('./routes/api/user'));
+app.use('/api/semester', require('./routes/api/semester'));
+app.use('/api/class', require('./routes/api/class'));
 
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);

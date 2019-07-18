@@ -1,12 +1,12 @@
 const Q = require('q');
 
-class Users {
-	addUser(studentId, firstName, lastName, email, password){
+class User {
+	addUser(username, firstName, lastName, email, password){
 		const def = Q.defer();
 		const query = `
 			INSERT INTO
 				users (
-					student_id,
+					username,
 					first_name,
 					last_name,
 					email,
@@ -14,15 +14,15 @@ class Users {
 				)
 			VALUES
 				(
-					'${studentId}',
-					'${firstName}',
-					'${lastName}',
-					'${email}',
-					'${password}'	
+					?,
+					?,
+					?,
+					?,
+					?	
 				)
 		`;
 
-		const req = db.query(query, (err, data) => {
+		const req = db.query(query, [username, firstName, lastName, email, password], (err, data) => {
 			if(err){
 				def.reject(err);
 			}
@@ -33,16 +33,16 @@ class Users {
 		return def.promise;
 	}
 
-	getUser_studentId(studentId){
+	getUser_username(username){
 		const def = Q.defer();
 		const query = `
 			SELECT *
 			FROM users
 			WHERE
-				student_id = ${studentId}
+				username = ?
 		`;
 
-		const req = db.query(query, (err, data) => {
+		const req = db.query(query, [username], (err, data) => {
 			if(err){
 				def.reject(err);
 			} else {
@@ -54,4 +54,4 @@ class Users {
 	}
 }
 
-module.exports = Users;
+module.exports = User;
