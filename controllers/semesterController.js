@@ -12,13 +12,16 @@ class semesterController {
 			const res = {}
 			const array = data.forEach(item => {
 				if(!(item.year_end in res)){
-					res[item.year_end] = [];
+					res[item.year_end] = {};
+					res[item.year_end].data = [];
+					res[item.year_end].active = false;
 				}
-				res[item.year_end].unshift({
+				res[item.year_end].data.unshift({
 					id: item.id,
 					title: item.title,
 					active: item.active === 1
 				});
+				res[item.year_end].active = res[item.year_end].active || item.active === 1;
 			});
 			def.resolve(res);
 		}, err => {

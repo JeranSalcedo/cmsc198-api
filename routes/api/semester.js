@@ -18,8 +18,11 @@ router.get('/:count', (req, res) => {
 	});
 });
 
-router.post('/new/:year/:length', (req, res) => {
-	const request =	controller.addSemester_year(req.params.year, req.params.length);
+router.post('/new', (req, res) => {
+	const year = req.body.year;
+	const length = req.body.length;
+
+	const request =	controller.addSemester_year(year, length);
 	request.then(id => {
 		res.json({
 			msg: 'Successfully added semester!',

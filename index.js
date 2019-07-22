@@ -32,6 +32,7 @@ app.use('/api/login', require('./routes/api/login'));
 app.use('/api/user', require('./routes/api/user'));
 app.use('/api/semester', require('./routes/api/semester'));
 app.use('/api/class', require('./routes/api/class'));
+app.use('/api/subject', require('./routes/api/subject'));
 
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);
