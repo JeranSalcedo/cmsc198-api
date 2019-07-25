@@ -4,11 +4,15 @@ const classController = require('../../controllers/classController');
 const router = express.Router();
 const controller = new classController();
 
-router.post('/', (req, res) => {
-	// const request =	controller.getClasses_user(req.params.id);
-	// request.then(data => {
-	// 	res.json(data);
-	// });
-});
+// router.post('/new', (req, res) => {
+// 	const request =	controller.addClass_user(req.params.id);
+// 	request.then(data => {
+// 		res.json(data);
+// 	}, err => {
+// 		res.status(400).json({
+// 			err
+// 		});
+// 	});
+// });
 
 module.exports = router;

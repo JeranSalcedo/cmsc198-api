@@ -4,10 +4,25 @@ const userController = require('../../controllers/userController');
 const router = express.Router();
 const controller = new userController();
 
+router.get('/', (req, res) => {
+	const request =	controller.getUser_all();
+	request.then(data => {
+		res.json(data);
+	}, err => {
+		return res.status(400).json({
+			err
+		});
+	});
+});
+
 router.get('/:id/class', (req, res) => {
 	const request =	controller.getClasses_user(req.params.id);
 	request.then(data => {
 		res.json(data);
+	}, err => {
+		return res.status(400).json({
+			err
+		});
 	});
 });
 
@@ -30,15 +45,26 @@ router.post('/new', (req, res) => {
 			msg: 'Successfully added user!',
 			id
 		});
+	}, err => {
+		return res.status(400).json({
+			err
+		});
 	});
 });
 
-// router.get('/', (req, res) => {
-// 	const request =	controller.getMembers();
-// 	request.then(data => {
-// 		res.json(data);
-// 	});
-// });
+router.post('/class/new', (req, res) => {
+	const request = controller.addClass_user(req.body);
+	request.then(id => {
+		res.json({
+			msg: 'Successfully added class!',
+			id
+		});
+	}, err => {
+		return res.status(400).json({
+			err
+		});
+	});
+});
 
 // router.get('/:id', (req, res) => {
 // 	// const found = members.some(member => {

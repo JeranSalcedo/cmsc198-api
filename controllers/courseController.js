@@ -1,15 +1,13 @@
 const Q = require('q');
-const Subject = require('../models/Subject');
 const Course = require('../models/Course');
 
-const subjectModel = new Subject();
 const courseModel = new Course();
 
-class subjectController {
-	getSubjects_all(){
+class courseController {
+	getCourses_all(){
 		const def = Q.defer();
 
-		const request = subjectModel.getSubjects_all();
+		const request = courseModel.getCourses_all();
 		request.then(data => {
 			def.resolve(data);
 		}, err => {
@@ -19,23 +17,10 @@ class subjectController {
 		return def.promise;
 	}
 
-	getCourses_id(id){
+	addCourse(subjectId, number, title){
 		const def = Q.defer();
 
-		const request = courseModel.getCourses_id(id);
-		request.then(data => {
-			def.resolve(data);
-		}, err => {
-			def.reject(err);
-		});
-
-		return def.promise;
-	}
-
-	addSubject(code, title){
-		const def = Q.defer();
-
-		const request = subjectModel.addSubject(code, title);
+		const request = courseModel.addCourse(subjectId, number, title);
 		request.then(id => {
 			def.resolve(id);
 		}, err => {
@@ -45,18 +30,18 @@ class subjectController {
 		return def.promise;
 	}
 
-	editSubject_id(id, code, title){
+	editCourse_id(id, number, title){
 		const def = Q.defer();
 
 		const set = {};
-		if(code){
-			set.code = code;
+		if(number){
+			set.number = number;
 		}
 		if(title){
 			set.title = title;
 		}
 
-		const request = subjectModel.editSubject_id(id, set);
+		const request = courseModel.editCourse_id(id, set);
 		request.then(id => {
 			def.resolve(id);
 		}, err => {
@@ -66,10 +51,10 @@ class subjectController {
 		return def.promise;
 	}
 
-	deleteSubject_id(id){
+	deleteCourse_id(id){
 		const def = Q.defer();
 
-		const request = subjectModel.deleteSubject_id(id);
+		const request = courseModel.deleteCourse_id(id);
 		request.then(() => {
 			def.resolve();
 		}, err => {
@@ -80,4 +65,4 @@ class subjectController {
 	}
 }
 
-module.exports = subjectController;
+module.exports = courseController;

@@ -33,6 +33,7 @@ app.use('/api/user', require('./routes/api/user'));
 app.use('/api/semester', require('./routes/api/semester'));
 app.use('/api/class', require('./routes/api/class'));
 app.use('/api/subject', require('./routes/api/subject'));
+app.use('/api/course', require('./routes/api/course'));
 
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);
