@@ -1,7 +1,9 @@
 const Q = require('q');
 const Semester = require('../models/Semester');
+const Class = require('../models/Class');
 
 const semesterModel = new Semester();
+const classModel = new Class();
 
 class semesterController {
 	getSemesters_all(){
@@ -35,6 +37,19 @@ class semesterController {
 		const def = Q.defer()
 
 		const request = semesterModel.getSemesters_count(count);
+		request.then(data => {
+			def.resolve(data);
+		}, err => {
+			def.reject(err);
+		});
+
+		return def.promise;
+	}
+
+	getClasses_semester(id){
+		const def = Q.defer()
+
+		const request = classModel.getClasses_semester(id);
 		request.then(data => {
 			def.resolve(data);
 		}, err => {

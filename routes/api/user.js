@@ -52,20 +52,6 @@ router.post('/new', (req, res) => {
 	});
 });
 
-router.post('/class/new', (req, res) => {
-	const request = controller.addClass_user(req.body);
-	request.then(id => {
-		res.json({
-			msg: 'Successfully added class!',
-			id
-		});
-	}, err => {
-		return res.status(400).json({
-			err
-		});
-	});
-});
-
 // router.get('/:id', (req, res) => {
 // 	// const found = members.some(member => {
 // 	// 	return member.id === parseInt(req.params.id);
