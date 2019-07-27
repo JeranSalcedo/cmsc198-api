@@ -20,15 +20,24 @@ class classController {
 
 				const request_2 = classModel.addClassSection(sectionSmall, instructor, maxAbsencesSmall);
 				request_2.then(smallId => {
-					const courseId = body.courseId;
-					const finals = body.finals? 1 : 0;
-					const required = body.finals? body.required? 1 : 0 : null;
-					const exemption = body.finals && !body.required? body.exemption : null;
-					const passing = body.passing;
-					const semesterId = body.semesterId;
-					const userId = body.userId
+					const set = [];
 
-					const request_3 = classModel.addClass(courseId, finals, required, exemption, passing, lectureId, smallId, semesterId, userId);
+					set.push(body.courseId);
+					set.push(body.finals? 1 : 0);
+					if(body.finals){
+						set.push(body.required? 1 : 0);
+						if(body.required){
+							set.push(body.exemption);
+						}
+					}
+					set.push(body.passing);
+					set.push(0);
+					set.push(lectureId);
+					set.push(smallId);
+					set.push(body.semesterId);
+					set.push(body.userId);
+
+					const request_3 = classModel.addClass(body.finals, body.required, true, set);
 					request_3.then(id => {
 						def.resolve(id);
 					}, err => {
@@ -38,15 +47,23 @@ class classController {
 					def.reject(err);
 				});
 			} else {
-				const courseId = body.courseId;
-				const finals = body.finals? 1 : 0;
-				const required = body.finals && body.required? 1 : null;
-				const exemption = body.finals && !body.required? body.exemption : null;
-				const passing = body.passing;
-					const semesterId = body.semesterId;
-				const userId = body.userId
+				const set = [];
+				
+				set.push(body.courseId);
+				set.push(body.finals? 1 : 0);
+				if(body.finals){
+					set.push(body.required? 1 : 0);
+					if(body.required){
+						set.push(body.exemption);
+					}
+				}
+				set.push(body.passing);
+				set.push(0);
+				set.push(lectureId);
+				set.push(body.semesterId);
+				set.push(body.userId);
 
-				const request_2 = classModel.addClass(courseId, finals, required, exemption, passing, lectureId, null, semesterId, userId);
+				const request_2 = classModel.addClass(body.finals, body.required, false, set);
 				request_2.then(id => {
 					def.resolve(id);
 				}, err => {
@@ -77,6 +94,19 @@ class classController {
 		const def = Q.defer()
 
 		const request = classModel.getClassSection_id(id);
+		request.then(data => {
+			def.resolve(data);
+		}, err => {
+			def.reject(err);
+		});
+
+		return def.promise;
+	}
+
+	updateAbsences_id(op, id){
+		const def = Q.defer()
+
+		const request = classModel.updateAbsences_id(op, id);
 		request.then(data => {
 			def.resolve(data);
 		}, err => {

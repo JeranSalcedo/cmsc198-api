@@ -72,39 +72,11 @@ class Class {
 		return def.promise;
 	}
 
-	addClass(courseId, finals, required, exemption, passing, lectureId, recitLabId, semester, userId){
+	addClass(finals, required, smallClass, set){
 		const def = Q.defer();
-		const query = `
-			INSERT INTO
-				classes (
-					course,
-					finals,
-					required,
-					exemption,
-					exempted,
-					passing,
-					passed,
-					lecture,
-					recit_lab,
-					semester,
-					user
-				)
-			VALUES (
-				?,
-				?,
-				?,
-				?,
-				?,
-				?,
-				?,
-				?,
-				?,
-				?,
-				?
-			)
-		`;
+		const query = `INSERT INTO classes (course, finals, ${finals? required? `required,` : `required, exemption, exempted,`: ``}passing, passed, lecture, ${smallClass? `recit_lab,` : ''}semester, user) VALUES (${finals? required? `?,` : `?, ?, ?,` : ``}${smallClass? `?,` : ``}?, ?, ?, ?, ?, ?, ?)`;
 
-		const req = db.query(query, [courseId, finals, required, exemption, 0, passing, 0, lectureId, recitLabId, semesterId, userId], (err, data) => {
+		const req = db.query(query, set, (err, data) => {
 			if(err){
 				def.reject(err);
 			} else {
@@ -170,6 +142,28 @@ class Class {
 				def.reject(err);
 			} else {
 				def.resolve(JSON.parse(JSON.stringify(data))[0]);
+			}
+		});
+
+		return def.promise;
+	}
+
+	updateAbsences_id(op, id){
+		const def = Q.defer();
+		const query = `
+			UPDATE
+				classes_sections
+			SET
+				absences = absences ${op === 'add'? `+` : `-`} 1
+			WHERE
+				id = ?
+		`;
+
+		const req = db.query(query, [id], (err, data) => {
+			if(err){
+				def.reject(err);
+			} else {
+				def.resolve(data.insertId);
 			}
 		});
 

@@ -5,7 +5,6 @@ const router = express.Router();
 const controller = new classController();
 
 router.get('/section/:id', (req, res) => {
-	console.log(req.params.id);
 	const request = controller.getClassSection_id(req.params.id);
 	request.then(data => {
 		res.json(data);
@@ -32,6 +31,20 @@ router.post('/new', (req, res) => {
 	request.then(id => {
 		res.json({
 			msg: 'Successfully added class!',
+			id
+		});
+	}, err => {
+		return res.status(400).json({
+			err
+		});
+	});
+});
+
+router.put('/section/updateAbsences', (req, res) => {
+	const request = controller.updateAbsences_id(req.body.operation, req.body.section);
+	request.then(id => {
+		res.json({
+			msg: 'Successfully updated absences!',
 			id
 		});
 	}, err => {
