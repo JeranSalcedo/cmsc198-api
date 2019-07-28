@@ -1,5 +1,5 @@
 const Q = require('q');
-// const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 const User = require('../models/User');
 
 const userModel = new User();
@@ -14,30 +14,24 @@ class loginController {
 				def.reject('User does not exist.');
 			}
 
-			if(password === data.password){
-				def.resolve({
-					id: data.id,
-					username: data.username,
-					firstName: data.first_name,
-					lastName: data.last_name,
-					email: data.email,
-					admin: data.admin === 1
-				});
-			} else {
-				def.reject('Incorrect password');
-			}
+			bcrypt.compare(password, data.password, (err, res) => {
+				if(err){
+					throw err;
+				}
 
-			// bcrypt.compare(password, data.password, (err, res) => {
-			// 	if(err){
-			// 		throw err;
-			// 	}
-
-			// 	if(res){
-			// 		def.resolve();
-			// 	} else {
-			// 		def.reject('Incorrect password');
-			// 	}
-			// });
+				if(res){
+					def.resolve({
+						id: data.id,
+						username: data.username,
+						firstName: data.first_name,
+						lastName: data.last_name,
+						email: data.email,
+						admin: data.admin === 1
+					});
+				} else {
+					def.reject('Incorrect password');
+				}
+			});
 		}, err => {
 			def.reject(err);
 		});

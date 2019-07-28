@@ -1,5 +1,5 @@
 const Q = require('q');
-// const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const Class = require('../models/Class');
 
@@ -34,24 +34,24 @@ class userController {
 		return def.promise;
 	}
 	
-	// addUser(studentId, firstName, lastName, email, password){
-	// 	const def = Q.defer()
+	addUser(studentId, firstName, lastName, email, password){
+		const def = Q.defer()
 
-	// 	bcrypt.hash(password, saltRounds, (err, hash) => {
-	// 		if(err){
-	// 			throw err;
-	// 		}
+		bcrypt.hash(password, saltRounds, (err, hash) => {
+			if(err){
+				throw err;
+			}
 
-	// 		const request = userModel.addUser(studentId, firstName, lastName, email, hash);
-	// 		request.then(id => {
-	// 			def.resolve(id);
-	// 		}, err => {
-	// 			def.reject(err);
-	// 		});
-	// 	});
+			const request = userModel.addUser(studentId, firstName, lastName, email, hash);
+			request.then(id => {
+				def.resolve(id);
+			}, err => {
+				def.reject(err);
+			});
+		});
 
-	// 	return def.promise;
-	// }
+		return def.promise;
+	}
 }
 
 module.exports = userController;

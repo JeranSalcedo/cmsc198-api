@@ -4,6 +4,91 @@ const Class = require('../models/Class');
 const classModel = new Class();
 
 class classController {
+	getClass_user_semester(userId, semesterId){
+		const def = Q.defer()
+
+		const request = classModel.getClass_user_semester(userId, semesterId);
+		request.then(data => {
+			def.resolve(data);
+		}, err => {
+			def.reject(err);
+		});
+
+		return def.promise;
+	}
+
+	getClassSection_id(id){
+		const def = Q.defer()
+
+		const request = classModel.getClassSection_id(id);
+		request.then(data => {
+			def.resolve(data);
+		}, err => {
+			def.reject(err);
+		});
+
+		return def.promise;
+	}
+
+	getClassWork_id(id){
+		const def = Q.defer()
+
+		const request_quizzes = classModel.getQuizzes_section(id);
+		const request_assignments = classModel.getAssignments_section(id);
+		const request_exams = classModel.getExams_section(id);
+
+		Promise.all([
+			request_quizzes,
+			request_assignments,
+			request_exams
+		]).then(data => {
+			def.resolve(data);
+		}, err => {
+			def.reject(err);
+		});
+
+		return def.promise;
+	}
+
+	getQuiz_id(id){
+		const def = Q.defer()
+
+		const request = classModel.getQuizzes_section(id);
+		request.then(data => {
+			def.resolve(data);
+		}, err => {
+			def.reject(err);
+		});
+
+		return def.promise;
+	}
+
+	getAssignment_id(id){
+		const def = Q.defer()
+
+		const request = classModel.getAssignments_section(id);
+		request.then(data => {
+			def.resolve(data);
+		}, err => {
+			def.reject(err);
+		});
+
+		return def.promise;
+	}
+
+	getExam_id(id){
+		const def = Q.defer()
+
+		const request = classModel.getExams_section(id);
+		request.then(data => {
+			def.resolve(data);
+		}, err => {
+			def.reject(err);
+		});
+
+		return def.promise;
+	}
+
 	addClass_user_semester(body){
 		const def = Q.defer();
 
@@ -32,6 +117,7 @@ class classController {
 					}
 					set.push(body.passing);
 					set.push(0);
+					set.push(1);
 					set.push(lectureId);
 					set.push(smallId);
 					set.push(body.semesterId);
@@ -59,6 +145,7 @@ class classController {
 				}
 				set.push(body.passing);
 				set.push(0);
+				set.push(1);
 				set.push(lectureId);
 				set.push(body.semesterId);
 				set.push(body.userId);
@@ -77,12 +164,12 @@ class classController {
 		return def.promise;
 	}
 
-	getClass_user_semester(userId, semesterId){
+	addQuiz_section(data){
 		const def = Q.defer()
 
-		const request = classModel.getClass_user_semester(userId, semesterId);
-		request.then(data => {
-			def.resolve(data);
+		const request = classModel.addQuiz_section(data.section, data.title, data.score, data.total);
+		request.then(id => {
+			def.resolve(id);
 		}, err => {
 			def.reject(err);
 		});
@@ -90,12 +177,25 @@ class classController {
 		return def.promise;
 	}
 
-	getClassSection_id(id){
+	addAssignment_section(data){
 		const def = Q.defer()
 
-		const request = classModel.getClassSection_id(id);
-		request.then(data => {
-			def.resolve(data);
+		const request = classModel.addAssignment_section(data.section, data.title, data.score, data.total);
+		request.then(id => {
+			def.resolve(id);
+		}, err => {
+			def.reject(err);
+		});
+
+		return def.promise;
+	}
+
+	addExam_section(data){
+		const def = Q.defer()
+
+		const request = classModel.addExam_section(data.section, data.title, data.score, data.total);
+		request.then(id => {
+			def.resolve(id);
 		}, err => {
 			def.reject(err);
 		});

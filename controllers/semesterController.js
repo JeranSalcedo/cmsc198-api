@@ -63,11 +63,13 @@ class semesterController {
 		const def = Q.defer()
 
 		const title = length == 1? '2nd Semester' : 'Mid Year';
+		const title_2 = length == 1? '1st Semester' : '2nd Semester';
 
 		const request = semesterModel.addSemester_year(year, title);
 		request.then(id => {
 			semesterModel.updateStatus_id(id);
-			
+			classModel.updateStatus_semester(year, title_2);
+
 			def.resolve(id);
 		}, err => {
 			def.reject(err);
