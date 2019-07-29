@@ -111,8 +111,9 @@ class classController {
 					set.push(body.finals? 1 : 0);
 					if(body.finals){
 						set.push(body.required? 1 : 0);
-						if(body.required){
+						if(!body.required){
 							set.push(body.exemption);
+							set.push(0);
 						}
 					}
 					set.push(body.passing);
@@ -139,8 +140,9 @@ class classController {
 				set.push(body.finals? 1 : 0);
 				if(body.finals){
 					set.push(body.required? 1 : 0);
-					if(body.required){
+					if(!body.required){
 						set.push(body.exemption);
+						set.push(0);
 					}
 				}
 				set.push(body.passing);
@@ -219,9 +221,22 @@ class classController {
 	deleteClass_id(id){
 		const def = Q.defer()
 
-		const request = classModel.deleteClass_id(id);
-		request.then(() => {
-			def.resolve();
+		const request_class = classModel.getClassSections_id(id);
+		request_class.then(data => {
+			const promises = [];
+
+			const request_lecture = classModel.deleteClassSection_id(data.lecture);
+			promises.push(request_lecture);
+			if(data.recit_lab){
+				const request_small = classModel.deleteClassSection_id(data.recit_lab);
+				promises.push(request_small);
+			}
+
+			Promise.all(promises).then(() => {
+				def.resolve();
+			}, err => {
+				def.reject(err);
+			});
 		}, err => {
 			def.reject(err);
 		});

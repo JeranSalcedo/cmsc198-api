@@ -84,6 +84,28 @@ class Class {
 		return def.promise;
 	}
 
+	getClassSections_id(id){
+		const def = Q.defer();
+		const query = `
+			SELECT
+				classes.lecture,
+				classes.recit_lab
+			FROM classes
+			WHERE
+				id = ?
+		`;
+
+		const req = db.query(query, [id], (err, data) => {
+			if(err){
+				def.reject(err);
+			} else {
+				def.resolve(JSON.parse(JSON.stringify(data))[0]);
+			}
+		});
+
+		return def.promise;
+	}
+
 	getClassSection_id(id){
 		const def = Q.defer();
 		const query = `
@@ -199,7 +221,7 @@ class Class {
 
 	addClass(finals, required, smallClass, set){
 		const def = Q.defer();
-		const query = `INSERT INTO classes (course, finals, ${finals? required? `required,` : `required, exemption, exempted,`: ``}passing, passed, active, lecture, ${smallClass? `recit_lab,` : ''}semester, user) VALUES (${finals? required? `?,` : `?, ?, ?,` : ``}${smallClass? `?,` : ``}?, ?, ?, ?, ?, ?, ?, ?)`;
+		const query = `INSERT INTO classes (course, finals, ${finals? required? `required,` : `required, exemption, exempted, `: ``}passing, passed, active, lecture, ${smallClass? `recit_lab,` : ''}semester, user) VALUES (${finals? required? `?, ` : `?, ?, ?, ` : ``}${smallClass? `?, ` : ``}?, ?, ?, ?, ?, ?, ?, ?)`;
 
 		const req = db.query(query, set, (err, data) => {
 			if(err){
@@ -366,11 +388,11 @@ class Class {
 		return def.promise;
 	}
 
-	deleteClass_id(id){
+	deleteClassSection_id(id){
 		const def = Q.defer();
 		const query = `
 			DELETE FROM
-				classes
+				classes_sections
 			WHERE
 				id = ?
 		`;
