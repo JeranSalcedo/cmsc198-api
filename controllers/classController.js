@@ -118,6 +118,9 @@ class classController {
 					}
 					set.push(body.passing);
 					set.push(0);
+					set.push(0);
+					set.push(body.percentageLecture);
+					set.push(body.percentageSmall);
 					set.push(1);
 					set.push(lectureId);
 					set.push(smallId);
@@ -147,6 +150,9 @@ class classController {
 				}
 				set.push(body.passing);
 				set.push(0);
+				set.push(0);
+				set.push(body.percentageLecture);
+				set.push(body.percentageSmall);
 				set.push(1);
 				set.push(lectureId);
 				set.push(body.semesterId);

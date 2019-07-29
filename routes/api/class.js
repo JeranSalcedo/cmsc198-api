@@ -140,6 +140,23 @@ router.put('/section/updateAbsences', (req, res) => {
 	});
 });
 
+router.put('/section/:type/percentage/edit', (req, res) => {
+	res.json({
+		temp: req.params.type
+	});
+	// const request = controller.updateAbsences_id(req.body.operation, req.body.section);
+	// request.then(id => {
+	// 	res.json({
+	// 		msg: 'Successfully updated absences!',
+	// 		id
+	// 	});
+	// }, err => {
+	// 	return res.status(400).json({
+	// 		err
+	// 	});
+	// });
+});
+
 router.delete('/:id', (req, res) => {
 	const request = controller.deleteClass_id(req.params.id);
 	request.then(() => {

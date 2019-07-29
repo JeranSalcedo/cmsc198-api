@@ -58,6 +58,9 @@ class Class {
 				classes.exempted,
 				classes.passing,
 				classes.passed,
+				classes.standing,
+				classes.percentage_lecture AS 'percentageLecture',
+				classes.percentage_small AS 'percentageSmall',
 				classes.active,
 				classes.lecture,
 				classes.recit_lab
@@ -221,7 +224,7 @@ class Class {
 
 	addClass(finals, required, smallClass, set){
 		const def = Q.defer();
-		const query = `INSERT INTO classes (course, finals, ${finals? required? `required,` : `required, exemption, exempted, `: ``}passing, passed, active, lecture, ${smallClass? `recit_lab,` : ''}semester, user) VALUES (${finals? required? `?, ` : `?, ?, ?, ` : ``}${smallClass? `?, ` : ``}?, ?, ?, ?, ?, ?, ?, ?)`;
+		const query = `INSERT INTO classes (course, finals, ${finals? required? `required,` : `required, exemption, exempted, `: ``}passing, passed, standing, percentage_lecture, percentage_small, active, lecture, ${smallClass? `recit_lab,` : ''}semester, user) VALUES (${finals? required? `?, ` : `?, ?, ?, ` : ``}${smallClass? `?, ` : ``}?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
 		const req = db.query(query, set, (err, data) => {
 			if(err){
