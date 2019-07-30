@@ -126,6 +126,17 @@ router.post('/section/exam/new', (req, res) => {
 	});
 });
 
+router.put('/section/standing', (req, res) => {
+	const request = controller.updateClassSectionStanding_id(req.body.section);
+	request.then(data => {
+		res.json(data);
+	}, err => {
+		return res.status(400).json({
+			err
+		});
+	});
+});
+
 router.put('/section/updateAbsences', (req, res) => {
 	const request = controller.updateAbsences_id(req.body.operation, req.body.section);
 	request.then(id => {
@@ -155,6 +166,17 @@ router.put('/section/:type/percentage/edit', (req, res) => {
 	// 		err
 	// 	});
 	// });
+});
+
+router.delete('/section/:type/:typeId', (req, res) => {
+	const request = controller.deleteClassWork_section_id(req.params.type, req.params.typeId);
+	request.then(data => {
+		res.json(data);
+	}, err => {
+		return res.status(400).json({
+			err
+		});
+	});
 });
 
 router.delete('/:id', (req, res) => {

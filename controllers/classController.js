@@ -22,6 +22,10 @@ class classController {
 
 		const request = classModel.getClassSection_id(id);
 		request.then(data => {
+			data.percentage_quiz_score = data.quiz_total == 0? 0 : Math.round(data.quiz_score * data.percentage_quiz / data.quiz_total);
+			data.percentage_assignment_score = data.assignment_total == 0? 0 : Math.round(data.assignment_score * data.percentage_assignment / data.assignment_total);
+			data.percentage_exam_score = data.exam_total == 0? 0 : Math.round(data.exam_score * data.percentage_exam / data.exam_total);
+
 			def.resolve(data);
 		}, err => {
 			def.reject(err);
@@ -177,6 +181,8 @@ class classController {
 
 		const request = classModel.addQuiz_section(data.section, data.title, data.score, data.total);
 		request.then(id => {
+			classModel.updateClassSectionQuiz_id(data.section, 'add', data.score, data.total);
+
 			def.resolve(id);
 		}, err => {
 			def.reject(err);
@@ -190,6 +196,8 @@ class classController {
 
 		const request = classModel.addAssignment_section(data.section, data.title, data.score, data.total);
 		request.then(id => {
+			classModel.updateClassSectionAssignment_id(data.section, 'add', data.score, data.total);
+
 			def.resolve(id);
 		}, err => {
 			def.reject(err);
@@ -203,7 +211,23 @@ class classController {
 
 		const request = classModel.addExam_section(data.section, data.title, data.score, data.total);
 		request.then(id => {
+			classModel.updateClassSectionExam_id(data.section, 'add', data.score, data.total);
+
 			def.resolve(id);
+		}, err => {
+			def.reject(err);
+		});
+
+		return def.promise;
+	}
+
+	updateClassSectionStanding_id(id){
+		const def = Q.defer()
+
+		classModel.updateClassSectionStanding_id(id);
+		const request = classModel.getClassSectionStanding_id(id);
+		request.then(data => {
+			def.resolve(data);
 		}, err => {
 			def.reject(err);
 		});
@@ -245,6 +269,32 @@ class classController {
 			});
 		}, err => {
 			def.reject(err);
+		});
+
+		return def.promise;
+	}
+
+	deleteClassWork_section_id(type, id){
+		const def = Q.defer()
+
+		const request_update = classModel.updateClassSectionWork_type(type, id);
+		request_update.then(() => {
+			const request = classModel.getNewPercentageScore_workId(type, id);
+			request.then(data => {
+				const newValue = data.total == 0? 0 : Math.round(data.score * data.percentage / data.total);
+				classModel.deleteClassWork_id(type, id);
+				
+				def.resolve({
+					score: data.score,
+					total: data.total,
+					newValue
+				});
+			}, err => {
+				def.reject(err);
+			});
+
+		}, err => {
+			throw err;
 		});
 
 		return def.promise;

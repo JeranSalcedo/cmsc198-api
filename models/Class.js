@@ -130,6 +130,27 @@ class Class {
 		return def.promise;
 	}
 
+	getClassSectionStanding_id(id){
+		const def = Q.defer();
+		const query = `
+			SELECT
+				standing
+			FROM classes_sections
+			WHERE
+				id = ?
+		`;
+
+		const req = db.query(query, [id], (err, data) => {
+			if(err){
+				def.reject(err);
+			} else {
+				def.resolve(JSON.parse(JSON.stringify(data))[0]);
+			}
+		});
+
+		return def.promise;
+	}
+
 	getQuizzes_section(id){
 		const def = Q.defer();
 		const query = `
@@ -187,6 +208,37 @@ class Class {
 				def.reject(err);
 			} else {
 				def.resolve(JSON.parse(JSON.stringify(data)));
+			}
+		});
+
+		return def.promise;
+	}
+
+	getNewPercentageScore_workId(type, id){
+		const def = Q.defer();
+		const query = `
+			SELECT
+				percentage_${type} AS 'percentage',
+				${type}_score AS 'score',
+				${type}_total AS 'total'
+			FROM
+				classes_sections
+			WHERE
+				id = (
+					SELECT
+						section
+					FROM
+						${type}${type === 'quiz'? 'zes' : 's'}
+					WHERE
+						id = ?
+				)
+		`;
+
+		const req = db.query(query, [id], (err, data) => {
+			if(err){
+				def.reject(err);
+			} else {
+				def.resolve(JSON.parse(JSON.stringify(data))[0]);
 			}
 		});
 
@@ -259,7 +311,6 @@ class Class {
 			)
 		`;
 
-		console.log(section, title, score, total);
 		const req = db.query(query, [title, score, total, 0, 0, section], (err, data) => {
 			if(err){
 				def.reject(err);
@@ -293,7 +344,6 @@ class Class {
 			)
 		`;
 
-		console.log(section, title, score, total);
 		const req = db.query(query, [title, score, total, 0, 0, section], (err, data) => {
 			if(err){
 				def.reject(err);
@@ -327,8 +377,29 @@ class Class {
 			)
 		`;
 
-		console.log(section, title, score, total);
 		const req = db.query(query, [title, score, total, 0, 0, section], (err, data) => {
+			if(err){
+				def.reject(err);
+			} else {
+				def.resolve(data.insertId);
+			}
+		});
+
+		return def.promise;
+	}
+
+	updateClassSectionStanding_id(id){
+		const def = Q.defer();
+		const query = `
+			UPDATE
+				classes_sections
+			SET
+				standing = IF(quiz_total = 0, 0, percentage_quiz * quiz_score / quiz_total) + IF(assignment_total = 0, 0, percentage_assignment * assignment_score / assignment_total) + IF(exam_total = 0, 0, percentage_exam * exam_score / exam_total)
+			WHERE
+				id = ?
+		`;
+
+		const req = db.query(query, [id], (err, data) => {
 			if(err){
 				def.reject(err);
 			} else {
@@ -391,11 +462,144 @@ class Class {
 		return def.promise;
 	}
 
+	updateClassSectionQuiz_id(id, op, score, total){
+		const def = Q.defer();
+		const query = `
+			UPDATE
+				classes_sections
+			SET
+				quiz_score = quiz_score ${op === 'add'? `+` : `-`} ?,
+				quiz_total = quiz_total ${op === 'add'? `+` : `-`} ?
+			WHERE
+				id = ?
+		`;
+
+		const req = db.query(query, [score, total, id], (err, data) => {
+			if(err){
+				def.reject(err);
+			} else {
+				def.resolve(data.insertId);
+			}
+		});
+
+		return def.promise;
+	}
+
+	updateClassSectionAssignment_id(id, op, score, total){
+		const def = Q.defer();
+		const query = `
+			UPDATE
+				classes_sections
+			SET
+				assignment_score = assignment_score ${op === 'add'? `+` : `-`} ?,
+				assignment_total = assignment_total ${op === 'add'? `+` : `-`} ?
+			WHERE
+				id = ?
+		`;
+
+		const req = db.query(query, [score, total, id], (err, data) => {
+			if(err){
+				def.reject(err);
+			} else {
+				def.resolve(data.insertId);
+			}
+		});
+
+		return def.promise;
+	}
+
+	updateClassSectionExam_id(id, op, score, total){
+		const def = Q.defer();
+		const query = `
+			UPDATE
+				classes_sections
+			SET
+				exam_score = exam_score ${op === 'add'? `+` : `-`} ?,
+				exam_total = exam_total ${op === 'add'? `+` : `-`} ?
+			WHERE
+				id = ?
+		`;
+
+		const req = db.query(query, [score, total, id], (err, data) => {
+			if(err){
+				def.reject(err);
+			} else {
+				def.resolve(data.insertId);
+			}
+		});
+
+		return def.promise;
+	}
+
+	updateClassSectionWork_type(type, id){
+		const def = Q.defer();
+		const query = `
+			UPDATE
+				classes_sections
+			SET
+				${type}_score = ${type}_score - (
+					SELECT
+						score
+					FROM
+						${type}${type === 'quiz'? 'zes' : 's'}
+					WHERE
+						id = ?
+				),
+				${type}_total = ${type}_total - (
+					SELECT
+						total
+					FROM
+						${type}${type === 'quiz'? 'zes' : 's'}
+					WHERE
+						id = ?
+				)
+			WHERE
+				id = (
+					SELECT
+						section
+					FROM
+						${type}${type === 'quiz'? 'zes' : 's'}
+					WHERE
+						id = ?
+				)
+		`;
+
+		const req = db.query(query, [id, id, id], (err, data) => {
+			if(err){
+				def.reject(err);
+			} else {
+				def.resolve(data.insertId);
+			}
+		});
+
+		return def.promise;
+	}
+
 	deleteClassSection_id(id){
 		const def = Q.defer();
 		const query = `
 			DELETE FROM
 				classes_sections
+			WHERE
+				id = ?
+		`;
+
+		const req = db.query(query, [id], (err, data) => {
+			if(err){
+				def.reject(err);
+			} else {
+				def.resolve();
+			}
+		});
+
+		return def.promise;
+	}
+
+	deleteClassWork_id(type, id){
+		const def = Q.defer();
+		const query = `
+			DELETE FROM
+				${type}${type === 'quiz'? 'zes' : 's'}
 			WHERE
 				id = ?
 		`;
