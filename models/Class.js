@@ -219,7 +219,6 @@ class Class {
 		const query = `
 			SELECT
 				percentage_${type} AS 'percentage',
-				${type}_score AS 'score',
 				${type}_total AS 'total'
 			FROM
 				classes_sections
@@ -254,8 +253,14 @@ class Class {
 					teacher,
 					absences,
 					allowable_absences
+					percentage_quiz,
+					percentage_assignment,
+					percentage_exam
 				)
 			VALUES (
+				?,
+				?,
+				?,
 				?,
 				?,
 				?,
@@ -263,7 +268,7 @@ class Class {
 			)
 		`;
 
-		const req = db.query(query, [section, teacher, 0, maxAbsences], (err, data) => {
+		const req = db.query(query, [section, teacher, 0, maxAbsences, 20, 20, 60], (err, data) => {
 			if(err){
 				def.reject(err);
 			} else {
@@ -394,7 +399,7 @@ class Class {
 			UPDATE
 				classes_sections
 			SET
-				standing = IF(quiz_total = 0, 0, percentage_quiz * quiz_score / quiz_total) + IF(assignment_total = 0, 0, percentage_assignment * assignment_score / assignment_total) + IF(exam_total = 0, 0, percentage_exam * exam_score / exam_total)
+				standing = percentage_quiz * quiz_total / 100 + percentage_assignment * assignment_total / 100 + percentage_exam * exam_total / 100
 			WHERE
 				id = ?
 		`;
@@ -462,19 +467,18 @@ class Class {
 		return def.promise;
 	}
 
-	updateClassSectionQuiz_id(id, op, score, total){
+	updateClassSectionQuiz_id(id, op, score, total, count){
 		const def = Q.defer();
 		const query = `
 			UPDATE
 				classes_sections
 			SET
-				quiz_score = quiz_score ${op === 'add'? `+` : `-`} ?,
-				quiz_total = quiz_total ${op === 'add'? `+` : `-`} ?
+				quiz_total = (quiz_total * ? ${op === 'add'? `+` : `-`} 100 * ? / ?) / ?
 			WHERE
 				id = ?
 		`;
 
-		const req = db.query(query, [score, total, id], (err, data) => {
+		const req = db.query(query, [count, score, total, count + 1, id], (err, data) => {
 			if(err){
 				def.reject(err);
 			} else {
@@ -485,19 +489,18 @@ class Class {
 		return def.promise;
 	}
 
-	updateClassSectionAssignment_id(id, op, score, total){
+	updateClassSectionAssignment_id(id, op, score, total, count){
 		const def = Q.defer();
 		const query = `
 			UPDATE
 				classes_sections
 			SET
-				assignment_score = assignment_score ${op === 'add'? `+` : `-`} ?,
-				assignment_total = assignment_total ${op === 'add'? `+` : `-`} ?
+				assignment_total = (assignment_total * ? ${op === 'add'? `+` : `-`} 100 * ? / ?) / ?
 			WHERE
 				id = ?
 		`;
 
-		const req = db.query(query, [score, total, id], (err, data) => {
+		const req = db.query(query, [count, score, total, count + 1, id], (err, data) => {
 			if(err){
 				def.reject(err);
 			} else {
@@ -508,19 +511,18 @@ class Class {
 		return def.promise;
 	}
 
-	updateClassSectionExam_id(id, op, score, total){
+	updateClassSectionExam_id(id, op, score, total, count){
 		const def = Q.defer();
 		const query = `
 			UPDATE
 				classes_sections
 			SET
-				exam_score = exam_score ${op === 'add'? `+` : `-`} ?,
-				exam_total = exam_total ${op === 'add'? `+` : `-`} ?
+				exam_total = (exam_total * ? ${op === 'add'? `+` : `-`} 100 * ? / ?) / ?
 			WHERE
 				id = ?
 		`;
 
-		const req = db.query(query, [score, total, id], (err, data) => {
+		const req = db.query(query, [count, score, total, count + 1, id], (err, data) => {
 			if(err){
 				def.reject(err);
 			} else {
@@ -531,28 +533,27 @@ class Class {
 		return def.promise;
 	}
 
-	updateClassSectionWork_type(type, id){
+	updateClassSectionWork_type(type, id, count){
 		const def = Q.defer();
 		const query = `
 			UPDATE
 				classes_sections
 			SET
-				${type}_score = ${type}_score - (
+				${type}_total = (${type}_total * ? - 100 * (
 					SELECT
 						score
 					FROM
 						${type}${type === 'quiz'? 'zes' : 's'}
 					WHERE
 						id = ?
-				),
-				${type}_total = ${type}_total - (
+				) / (
 					SELECT
 						total
 					FROM
 						${type}${type === 'quiz'? 'zes' : 's'}
 					WHERE
 						id = ?
-				)
+				)) / ?
 			WHERE
 				id = (
 					SELECT
@@ -564,7 +565,31 @@ class Class {
 				)
 		`;
 
-		const req = db.query(query, [id, id, id], (err, data) => {
+		const req = db.query(query, [count, id, id, count - 1, id], (err, data) => {
+			if(err){
+				def.reject(err);
+			} else {
+				def.resolve(data.insertId);
+			}
+		});
+
+		return def.promise;
+	}
+
+	updatePercentages_id(id, quiz, assignment, exam){
+		const def = Q.defer();
+		const query = `
+			UPDATE
+				classes_sections
+			SET
+				percentage_quiz = ?,
+				percentage_assignment = ?,
+				percentage_exam = ?
+			WHERE
+				id = ?
+		`;
+
+		const req = db.query(query, [quiz, assignment, exam, id], (err, data) => {
 			if(err){
 				def.reject(err);
 			} else {

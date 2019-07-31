@@ -151,25 +151,44 @@ router.put('/section/updateAbsences', (req, res) => {
 	});
 });
 
-router.put('/section/:type/percentage/edit', (req, res) => {
-	res.json({
-		temp: req.params.type
+router.put('/section/percentage/edit', (req, res) => {
+	const request = controller.updatePercentages_id(req.body);
+	request.then(id => {
+		res.json({
+			msg: 'Successfully updated percentages!',
+			id
+		});
+	}, err => {
+		return res.status(400).json({
+			err
+		});
 	});
-	// const request = controller.updateAbsences_id(req.body.operation, req.body.section);
-	// request.then(id => {
-	// 	res.json({
-	// 		msg: 'Successfully updated absences!',
-	// 		id
-	// 	});
-	// }, err => {
-	// 	return res.status(400).json({
-	// 		err
-	// 	});
-	// });
 });
 
-router.delete('/section/:type/:typeId', (req, res) => {
-	const request = controller.deleteClassWork_section_id(req.params.type, req.params.typeId);
+router.delete('/section/quiz/:typeId/:count', (req, res) => {
+	const request = controller.deleteClassWork_section_id('quiz', req.params.typeId, req.params.count);
+	request.then(data => {
+		res.json(data);
+	}, err => {
+		return res.status(400).json({
+			err
+		});
+	});
+});
+
+router.delete('/section/assignment/:typeId/:count', (req, res) => {
+	const request = controller.deleteClassWork_section_id('assignment', req.params.typeId, req.params.count);
+	request.then(data => {
+		res.json(data);
+	}, err => {
+		return res.status(400).json({
+			err
+		});
+	});
+});
+
+router.delete('/section/exam/:typeId/:count', (req, res) => {
+	const request = controller.deleteClassWork_section_id('exam', req.params.typeId, req.params.count);
 	request.then(data => {
 		res.json(data);
 	}, err => {
