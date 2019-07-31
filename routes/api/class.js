@@ -126,6 +126,17 @@ router.post('/section/exam/new', (req, res) => {
 	});
 });
 
+router.put('/standing/edit', (req, res) => {
+	const request = controller.updateClassStanding_id('lecture', req.body.id);
+	request.then(id => {
+		res.json(id);
+	}, err => {
+		return res.status(400).json({
+			err
+		});
+	});
+});
+
 router.put('/section/standing', (req, res) => {
 	const request = controller.updateClassSectionStanding_id(req.body.section);
 	request.then(data => {

@@ -115,6 +115,7 @@ class classController {
 					set.push(body.finals? 1 : 0);
 					if(body.finals){
 						set.push(body.required? 1 : 0);
+						set.push(body.percentageFinals);
 						if(!body.required){
 							set.push(body.exemption);
 							set.push(0);
@@ -147,6 +148,7 @@ class classController {
 				set.push(body.finals? 1 : 0);
 				if(body.finals){
 					set.push(body.required? 1 : 0);
+					set.push(body.percentageFinals);
 					if(!body.required){
 						set.push(body.exemption);
 						set.push(0);
@@ -221,8 +223,41 @@ class classController {
 		return def.promise;
 	}
 
+	updateClassStanding_id(type, classId){
+		const def = Q.defer();
+
+		const request_ClasSectionId = classModel.getClassSections_id(classId);
+		request_ClasSectionId.then(id => {
+			const promises = [];
+
+			promises.push(classModel.getClassSectionStanding_id(id.lecture));
+			if(id.recit_lab === null){
+				promises.push({
+					standing: 0
+				});
+			} else {
+				promises.push(classModel.getClassSectionStanding_id(id.recit_lab));
+			}
+
+			Promise.all(promises).then(data => {
+				const request = classModel.updateClassStanding_id(classId, data[0].standing, data[1].standing);
+				request.then(id => {
+					def.resolve(id);
+				}, err => {
+					def.reject(err);
+				});
+			}, err => {
+				def.reject(err);
+			});
+		}, err => {
+			def.reject(err);
+		});
+
+		return def.promise;
+	}
+
 	updateClassSectionStanding_id(id){
-		const def = Q.defer()
+		const def = Q.defer();
 
 		const request_update = classModel.updateClassSectionStanding_id(id);
 		request_update.then(() => {
@@ -240,7 +275,7 @@ class classController {
 	}
 
 	updateAbsences_id(op, id){
-		const def = Q.defer()
+		const def = Q.defer();
 
 		const request = classModel.updateAbsences_id(op, id);
 		request.then(data => {

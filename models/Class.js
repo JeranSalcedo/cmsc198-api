@@ -54,6 +54,7 @@ class Class {
 				courses.title,
 				classes.finals,
 				classes.required,
+				classes.percentage_finals AS 'percentageFinals',
 				classes.exemption,
 				classes.exempted,
 				classes.passing,
@@ -252,7 +253,7 @@ class Class {
 					section,
 					teacher,
 					absences,
-					allowable_absences
+					allowable_absences,
 					percentage_quiz,
 					percentage_assignment,
 					percentage_exam
@@ -281,7 +282,7 @@ class Class {
 
 	addClass(finals, required, smallClass, set){
 		const def = Q.defer();
-		const query = `INSERT INTO classes (course, finals, ${finals? required? `required,` : `required, exemption, exempted, `: ``}passing, passed, standing, percentage_lecture, percentage_small, active, lecture, ${smallClass? `recit_lab,` : ''}semester, user) VALUES (${finals? required? `?, ` : `?, ?, ?, ` : ``}${smallClass? `?, ` : ``}?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+		const query = `INSERT INTO classes (course, finals, ${finals? required? `required, percentage_finals,` : `required, percentage_finals, exemption, exempted, `: ``}passing, passed, standing, percentage_lecture, percentage_small, active, lecture, ${smallClass? `recit_lab,` : ''}semester, user) VALUES (${finals? required? `?, ?, ` : `?, ?, ?, ?, ` : ``}${smallClass? `?, ` : ``}?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
 		const req = db.query(query, set, (err, data) => {
 			if(err){
@@ -383,6 +384,30 @@ class Class {
 		`;
 
 		const req = db.query(query, [title, score, total, 0, 0, section], (err, data) => {
+			if(err){
+				def.reject(err);
+			} else {
+				def.resolve(data.insertId);
+			}
+		});
+
+		return def.promise;
+	}
+
+	updateClassStanding_id(id, lectureStanding, smallStanding){
+		const def = Q.defer();
+		const query = `
+			UPDATE
+				classes
+			SET
+				exempted = IF(percentage_lecture * ? / 100 + percentage_small * ? / 100 >= exemption, 1, 0),
+				passed = IF(finals = 1, (IF(((percentage_lecture * ? / 100 + percentage_small * ? / 100) * ((100 - percentage_finals) / 100)) >= passing, 1, 0)), (IF(percentage_lecture * ? / 100 + percentage_small * ? / 100 >= passing, 1, 0))),
+				standing = percentage_lecture * ? / 100 + percentage_small * ? / 100
+			WHERE
+				id = ?
+		`;
+
+		const req = db.query(query, [lectureStanding, smallStanding, lectureStanding, smallStanding, lectureStanding, smallStanding, lectureStanding, smallStanding, id], (err, data) => {
 			if(err){
 				def.reject(err);
 			} else {
