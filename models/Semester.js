@@ -68,7 +68,6 @@ class Semester {
 			if(err){
 				def.reject(err);
 			} else {
-				console.log(data);
 				def.resolve(data.insertId);
 			}
 		});

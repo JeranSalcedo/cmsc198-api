@@ -63,7 +63,6 @@ class Course {
 					?	
 				)
 		`;
-		console.log(query, subjectId, number, title);
 
 		const req = db.query(query, [subjectId, number, title], (err, data) => {
 			if(err){
